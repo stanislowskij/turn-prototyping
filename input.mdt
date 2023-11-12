@@ -1,0 +1,32 @@
+header:                 --4D 54 68 64, length is automatic
+    format: mult        --[sing/mult/seq] 00, 01, 02 for format
+    tracks: 2           --a decimal number, must not be specified if format = sing
+    division: 16        --the number of ticks in a quarter note, with options for SMPTE instead
+track:                  --4D 54 72 6B, length is automatic
+    ticks: 0            --num ticks before next event
+    msg.noteon:         --construct a new midi message note on (requires: channel, note, velo)
+        channel: 0      --channel num, 0-15
+        note: 60        --c4
+        velo: 100       --decimal value
+    ticks: 8
+    msg.noteoff:
+        channel: 0
+        note: 60 
+        velo: 100
+    ticks: 8
+    msg.noteon:
+        channel: 0
+        note: 62 
+        velo: 50
+    ticks: 8
+    msg.noteoff:
+        channel: 0
+        note: 62
+        velo: 50
+    ticks: 40
+    msg.ctrlchange:
+        channel: 0
+        ctrl: 34        --breath control
+        val: 0
+    ticks: 8
+    meta.endtrack

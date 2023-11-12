@@ -1,0 +1,34 @@
+Markup syntax: [ignore whitespace]
+
+# Predefined classes
+<INTEGER> ::= number
+<7-BIT>   ::= a number 0-127 inclusive
+
+# Document specification
+<document> ::= <header-chunk> (<track-chunk>)+
+
+# Header specification
+<header-chunk> ::= <HEADER-ID>: <HEADER-SPEC>
+
+<HEADER-SPEC>  ::= <format> <ntrks> <division>
+
+<format>       ::= <FORMAT-ID>: <FORMAT-SPEC>
+<FORMAT-SPEC>  ::= sing | mult | seq
+
+<ntrks>        ::= <NTRKS-ID>: <NTRKS-SPEC>
+<NTRKS-SPEC>   ::= <7-BIT>
+
+<division>     ::= <DIV-ID>: <DIV-SPEC>
+<DIV-SPEC>     ::= <7-BIT>
+
+# Track specification
+<track-chunk>  ::= (<deltaTime> <event>)*
+
+# Additional types
+<ID>           ::= <string> | <ID> . <ID>
+
+# Keywords
+<HEADER-ID>    ::= header
+<FORMAT-ID>    ::= format
+<NTRKS-ID>     ::= tracks
+<DIV-ID>       ::= division

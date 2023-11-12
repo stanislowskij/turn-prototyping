@@ -1,0 +1,158 @@
+Midi file chunks:
+
+Note: B = byte. For example, if a tag specifies <4B.name> then the "name" block must be of the form 00 00 00 00.
+
+[b] = hex representation has been broken down into binary.
+
+<4 bytes> Type
+<4 bytes> Length; number of bytes in the chunk
+*Header chunks usually have 00 00 00 06 bytes
+
+** Your programs should EXPECT alien chunks and treat them as if they weren't there.
+
+
+
+Header chunk:
+MThd<4B.length><2B.format><2B.ntrks><2B.division>
+
+<2B.format> - format of the midi file
+00 00 : the file contains a single multi-channel track
+00 01 : the file has multiple simultaneous tracks
+00 02 : the file has sequentially independent single-track paterns
+
+<2B.ntrks> - number of tracks in the file
+* must be equal to number of instances of MTrk in the file. if <2B.format> = "00 00" then this must be "00 01".
+
+<2B.division> - specifies "meaning of the delta-times"
+i.e. time signature
+
+Divided into two ways (first bit)
+[b] 0XXX XXXX XXXX XXXX = the Xs are # of ticks per quarter note
+[b] 1XXX XXXX XXXX XXXX = subdivisions of a second, corresponding to SMPTE and MIDI time code
+(this will show up as "8X XX" in hex editor most likely)
+
+SMPTE and MIDI time code (frames per second):
+if first bit is a 1, the next 7 bits contain special characters, stored in two's complement form
+-24 (FF E8) = 24 frames/s
+-25 (FF E7) = 
+-29 (FF E3) = 30 drop frame
+-30 (FF E2) = 
+
+Example division: 10 00 FF E8...........
+
+
+
+
+
+
+
+
+Track chunks
+
+<Track Chunk> = <4B.chunk type><4B.length><?B.MTrk event>+
+
+<?B.MTrk event> = <delta-time><event>
+
+!! DELTA-TIMES ARE STORED AS VLQS
+* represents time before the following event 
+
+delta-time should be 0 if:
+	- event is at the beginning of a track
+	- two events occur simultaneously
+DELTA TIMES MUST **ALWAYS** BE USED
+
+
+if <division> is type 0 then delta time is a fraction of a beat
+if <division> is type 1 then delta time is a fraction of a second, with SMPTE times
+
+
+
+<event> = <MIDI event> | <sysex event> | <meta-event>
+
+<MIDI event> -> any MIDI channel message (see appendix 1)
+
+!! THE FIRST EVENT IN A TRACK CHUNK MUST SPECIFY STATUS (Running status)
+
+<sysex event> -> MIDI system exclusive message
+F0<length><bytes to be transmitted after F0>
+length here is also a VLQ
+
+F7 must be specified at the end of the message to indicate entire message has been read
+
+another method:
+F7<length><all bytes to be transmitted> which reduces the need for F0
+
+<meta event> -> any non-MIDI information useful to the format or sequencers
+FF<type><length><bytes> (length is 00 if there is no data)
+length here is also a VLQ
+
+
+
+MIDI messages -> channel messages or system messages
+
+Each MIDI message has a status byte followed by one or more data bytes.
+
+Status bytes take the form "1xxxnnnn" in binary
+1 = this is a status byte
+xxx = specifies the kind of midi message (0d0 - 0d7)
+nnnn = channel number (0d0 - 0d15)
+
+
+midi message types:
+
+1000nnnn = note off
+----nnnn = channel number; two data bytes after
+<0k...> <0v...>
+-- 0kkkkkkk is the key of the note to be released
+-- 0vvvvvvv is the velocity that the note is released at
+
+
+1001nnnn = note on
+----nnnn = channel number; two data bytes after 
+<0k...> <0v...>
+-- 0kkkkkkk is the key of the note
+-- 0vvvvvvv is the velocity of the note
+
+
+1010nnnn = polyphonic aftertouch
+** aftertouch messages send information about key pressure AFTER the initial velocity. [ probably not necessary ]
+** polyphonic aftertouch sends the pressure information from all keys pressed polyphonically.
+
+
+1011nnnn = control change
+----nnnn = channel number; two data bytes after
+<0c...> <0v...>
+-- 0ccccccc is the controller number [see appendix]
+-- 0vvvvvvv is the value the controller is set to
+
+
+1100nnnn = program change
+[ we can probably safely ignore this ]
+<0p...>
+0ppppppp is the instrument to change to
+
+
+1101nnnn = channel aftertouch
+** aftertouch messages send information about key pressure AFTER the initial velocity. [ probably not necessary ]
+** channel aftertouch only sends the pressure information from the key with the highest pressure
+
+
+1110nnnn = pitch bend change
+** sends information about the pitch wheel, and allows for microtonal inflection of midi notes (has more control over note quality)
+----nnnn = channel number; two data bytes after
+<0l...><0m...>
+0lllllll = least significant bits
+0mmmmmmm = most significant bits
+** these combine to one number
+
+1111nnnn = SYSTEM MESSAGES (see above!)
+
+
+
+
+Play the note C4 in channel 0 for some number of ticks:
+XX 90 3C 64
+
+Note off:
+
+XX 80 3C 64
