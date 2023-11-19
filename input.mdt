@@ -1,6 +1,6 @@
 header:                 --4D 54 68 64, length is automatic
     format: mult        --[sing/mult/seq] 00, 01, 02 for format
-    tracks: 2           --a decimal number, must not be specified if format = sing
+    tracks: 1           --a decimal number, must not be specified if format = sing
     division: 16        --the number of ticks in a quarter note, with options for SMPTE instead
 track:                  --4D 54 72 6B, length is automatic
     ticks: 0            --num ticks before next event

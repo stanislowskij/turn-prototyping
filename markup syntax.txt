@@ -1,13 +1,18 @@
-Markup syntax: [ignore whitespace]
-
 # Predefined classes
-<INTEGER> ::= number
-<7-BIT>   ::= a number 0-127 inclusive
 
-# Document specification
-<document> ::= <header-chunk> (<track-chunk>)+
+<INTEGER> ::= a number
+<7-BIT>   ::= a number, 0-127 inclusive
+
+
+
+# Document specification (entry point)
+
+<document> ::= <header-chunk> <track-chunks>
+
+
 
 # Header specification
+
 <header-chunk> ::= <HEADER-ID>: <HEADER-SPEC>
 
 <HEADER-SPEC>  ::= <format> <ntrks> <division>
@@ -21,14 +26,35 @@ Markup syntax: [ignore whitespace]
 <division>     ::= <DIV-ID>: <DIV-SPEC>
 <DIV-SPEC>     ::= <7-BIT>
 
+
+
 # Track specification
-<track-chunk>  ::= (<deltaTime> <event>)*
+
+<track-chunks> ::= <track-chunk> <track-chunks> | null
+
+<track-chunk> ::= <TRACK-ID>: <INIT-EVENT> <EVENTS> <META-EOT> (?)
+
+<INIT-EVENT>  ::= <ZERO-DT> <EVENT-SPEC>
+<EVENTS>      ::= <event> <EVENTS> | null
+
+
+<ZERO-DT>     ::= <TICK-ID>: 0
+<delta-time>  ::= <TICK-ID>: <INTEGER> 
+    # delta time refers to length of previous event.
+
+
 
 # Additional types
+
 <ID>           ::= <string> | <ID> . <ID>
 
+
+
 # Keywords
+
 <HEADER-ID>    ::= header
 <FORMAT-ID>    ::= format
 <NTRKS-ID>     ::= tracks
 <DIV-ID>       ::= division
+<TRACK-ID>     ::= track
+<TICK-ID>      ::= ticks

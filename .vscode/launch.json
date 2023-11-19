@@ -8,8 +8,8 @@
       "args": [],
       "stopAtEntry": false,
       "externalConsole": true,
-      "cwd": "c:/Users/Jaydon/Documents/Projects/Turn",
-      "program": "c:/Users/Jaydon/Documents/Projects/Turn/build/Debug/outDebug",
+      "cwd": "c:/Users/Jaydon/Documents/Projects/Turn/group",
+      "program": "c:/Users/Jaydon/Documents/Projects/Turn/group/build/Debug/outDebug",
       "MIMode": "gdb",
       "miDebuggerPath": "gdb",
       "setupCommands": [
